@@ -1,0 +1,19 @@
+{
+  "name": "minitel",
+  "version": "1.0.0",
+  "description": "hi tech mintel ",
+  "main": "mintel.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "minitel",
+    "lowtech"
+  ],
+  "author": "gorhgorh",
+  "license": "ISC",
+  "dependencies": {
+    "line-reader": "^0.2.4",
+    "serialport": "^1.7.4"
+  }
+}
