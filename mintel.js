@@ -5,7 +5,7 @@
 var conf        = {};
 conf.port       = '/dev/cu.usbserial-A9M5DF7B';
 conf.speed      = 4800;
-conf.txtFile    = 'ascii/j5.txt';
+conf.txtFile    = 'ascii/test.txt';
 
 var lineReader  = require('line-reader');
 var SerialPort  = require('serialport').SerialPort;
@@ -24,6 +24,9 @@ var serialPort = new SerialPort(conf.port, {
 var isNumber = function (n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 };
+
+
+/* minitel functions */
 
 // write a line to the minitel
 minitel.wrLn = function (line) {
@@ -52,8 +55,6 @@ minitel.wrLn = function (line) {
   serialPort.write(curLine);
 };
 
-/* minitel functions */
-
 // clear the minitel output
 minitel.clear = function(){
   serialPort.write('\x0c');
@@ -78,10 +79,14 @@ var readMsg = function (file) {
 // when the minitel is there
 serialPort.on('open', function () {
   console.log('Minitel is available');
-  readMsg(conf.txtFile);//
+  drawFrame();
 
   // logs input of the minitel keyboard
   serialPort.on('data', function(data) {
     console.log('data received: ' + data);
   });
 });
+
+function drawFrame() {
+  readMsg(conf.txtFile);
+}
