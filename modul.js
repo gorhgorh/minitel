@@ -1,19 +1,20 @@
-/**
- * Node MINITEL or why use expensive lcd screens ?
- */
 var lineReader  = require('line-reader');
 var SerialPort  = require('serialport').SerialPort;
 var assert      = require('assert');
-var EventEmitter = require("events").EventEmitter;
-var util         = require("util");
-
-module.exports = function (options) {
+var EventEmitter = require('events').EventEmitter;
+var util = require('util');
+new events.EventEmitter();
+function Minitel(options) {
+  if (!(this instanceof Minitel)) return new Minitel();
+  EventEmitter.call(this);
   var opts    = {};
   var minitel  = {};
 
-  console.log(minitel.constructor);
+  var self = this;
+  setTimeout(function timeoutCb() {
+    self.emit('myEvent', 'hello world', options);
+  }, 1000);
 
-  // get options from the minitel call
   if (!options){
     console.log('you should at least provide a port !!!');
   }else {
@@ -27,7 +28,6 @@ module.exports = function (options) {
   }
   console.log('opts',opts);
 
-  // serial port init
   var serialPort = new SerialPort(opts.port, {
     baudrate: opts.speed,
     databits:7,
@@ -89,10 +89,10 @@ module.exports = function (options) {
   // when the minitel is there
   serialPort.on('open', function () {
     minitel.isReady = true;
-
+    self.emit('spOpen', 'spOpen', options);
     console.log('Minitel is available');
     minitel.clear();
-    minitel.readMsg(opts.txtFile);
+    //minitel.readMsg(opts.txtFile);
     // logs input of the minitel keyboard
     serialPort.on('data', function(data) {
       console.log('data received: ' + data);
@@ -104,6 +104,10 @@ module.exports = function (options) {
     return !isNaN(parseFloat(n)) && isFinite(n);
   }
 
-  return minitel;
-};
+  //return minitel;
+}
 
+util.inherits(Minitel, EventEmitter);
+
+//exports = module.exports = new events.EventEmitter();
+module.exports = Minitel;
