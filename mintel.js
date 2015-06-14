@@ -1,66 +1,87 @@
-var SerialPort = require("serialport").SerialPort;
-var serialPort = new SerialPort("/dev/cu.usbserial-A9M5DF7B", {
-  // baudrate: 1200,
-  baudrate: 4800,
+/**
+ * Node MINITEL or why use expensive lcd screens ?
+ */
+
+var conf        = {};
+conf.port       = '/dev/cu.usbserial-A9M5DF7B';
+conf.speed      = 4800;
+conf.txtFile    = 'ascii/j5.txt';
+
+var lineReader  = require('line-reader');
+var SerialPort  = require('serialport').SerialPort;
+var assert      = require('assert');
+
+var minitel = {};
+
+// serial port init
+var serialPort = new SerialPort(conf.port, {
+  baudrate: conf.speed,
   databits:7,
   parity:'even'
 });
-var fs = require('fs');
-var message = fs.readFile('./message.txt','utf8', function (err, data) {
-  if (err) throw err;
-  console.log("done");
-});
 
-var lineReader = require('line-reader');
+// check if n is a number
+var isNumber = function (n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+};
 
+// write a line to the minitel
+minitel.wrLn = function (line) {
+  var lnLnth  = line.length;
+  var curline ='';
 
+  assert(typeof(line)==='string');
+  assert(isNumber(lnLnth));
 
+  // if the line is less thant 40 char
+  // we fill it with white space till 40;
+  if(lnLnth < 41){
+    var fillCount = 40 - line.length + 1;
+    var fill = Array(fillCount).join(' ');
+    curLine = line+fill;
+  }else{ // else we trim it to 40 char
+    var sF = (lnLnth -40) *-1;
+    line = line.slice(0, sF);
+    curLine = line;
+  }
+
+  // check that the line is exactly 40 char long
+  assert(curLine.length===40);
+
+  // write the line to the minitel
+  serialPort.write(curLine);
+};
+
+/* minitel functions */
+
+// clear the minitel output
+minitel.clear = function(){
+  serialPort.write('\x0c');
+};
+
+minitel.beep = function () {
+  serialPort.write('\x07'); // da noiz
+};
+
+// read a textfile and send its content line by line to the minitel
 var readMsg = function (file) {
+  minitel.clear();
   lineReader.eachLine(file, function(line, last) {
-    //line = line.replace(/\r?\n|\r/g, " ");
-    console.log(line);
-    writeLine(line);
+    minitel.wrLn(line);
     if (last === true) {
+      console.log('file read');
       return false; // stop reading
     }
   });
-  // body...
 };
 
-serialPort.on("open", function () {
-  console.log('open');
-  //clearInterval(interval);
-  //writeLine("lala");
-  serialPort.write("\x0c"); // clearScreen
-  readMsg('samples/j5.txt');//
-  // serialPort.write("\x07"); // da noiz
+// when the minitel is there
+serialPort.on('open', function () {
+  console.log('Minitel is available');
+  readMsg(conf.txtFile);//
+
+  // logs input of the minitel keyboard
   serialPort.on('data', function(data) {
     console.log('data received: ' + data);
   });
-    // writeLine("012345678911234567892123456789312345678");
-
-
-    // serialPort.write(" ## ### ###      ##  #  ### ### ### ### \n");
-    // serialPort.write(" #  ##  #    #  # #  #  # # # # #    #  \n");
-    // serialPort.write("##  ### #    ## ###  ## ### ### #    ## \n");
-    // serialPort.write("                        #              \n");
-    // serialPort.write("\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D#-AT-#\n");
-    // serialPort.write("\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D#-CG-#\n");
-    // serialPort.write("\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D#-TA-#\n");
-    // serialPort.write("\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D#-AT-#\n");
-    // serialPort.write("\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D#-GC-#\n");
-    // serialPort.write("\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D####\n");
-  // serialPort.write("ls\n", function(err, results) {
-  //   console.log('err ' + err);
-  //   console.log('results ' + results);
-  // });
 });
-
-var writeLine = function  (line) {
-  var curline ='';
-  var fillCount = 40 - line.length + 1;
-  var fill = Array(fillCount).join(" ");
-  console.log(line.length, fillCount, fill);
-  curLine = "\x1b[D\x1b[D\x1b[D\x1b[D\x1b[D"+line+fill;
-  serialPort.write(curLine);
-};
