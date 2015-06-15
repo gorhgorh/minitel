@@ -2,7 +2,7 @@
 
 var options = {
   port:'/dev/cu.usbserial-A9M5DF7B',
-  txtFile:'ascii/j5.txt',
+  txtFile:'ascii/test.txt',
   speed:4800
 };
 var Minitel = require('./minitel.js');

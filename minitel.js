@@ -18,7 +18,7 @@ function Minitel(options) {
   }else {
     opts = options;
     if (!opts.txtFile){
-      opts.txtFile = 'ascii/j5.txt';
+      opts.txtFile = 'ascii/test.txt';
     }
     if(!opts.speed){
       opts.speed      = 1200;
