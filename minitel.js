@@ -1,9 +1,9 @@
-var lineReader  = require('line-reader');
 var SerialPort  = require('serialport').SerialPort;
+var lineReader  = require('line-reader');
 var assert      = require('assert');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
-new events.EventEmitter();
+
 function Minitel(options) {
   if (!(this instanceof Minitel)) return new Minitel();
   EventEmitter.call(this);
@@ -11,10 +11,8 @@ function Minitel(options) {
   var minitel  = {};
 
   var self = this;
-  setTimeout(function timeoutCb() {
-    self.emit('myEvent', 'hello world', options);
-  }, 1000);
 
+  // default options
   if (!options){
     console.log('you should at least provide a port !!!');
   }else {
@@ -26,7 +24,7 @@ function Minitel(options) {
       opts.speed      = 1200;
     }
   }
-  console.log('opts',opts);
+  //console.log('opts',opts);
 
   var serialPort = new SerialPort(opts.port, {
     baudrate: opts.speed,
@@ -92,11 +90,20 @@ function Minitel(options) {
     self.emit('spOpen', 'spOpen', options);
     console.log('Minitel is available');
     minitel.clear();
-    //minitel.readMsg(opts.txtFile);
+    minitel.readMsg(opts.txtFile);
     // logs input of the minitel keyboard
     serialPort.on('data', function(data) {
       console.log('data received: ' + data);
     });
+
+    self.on('spOpen', function myEventCb(str, num) {
+      console.log('serial port event from lib !!!');
+    });
+
+    self.on('imagePath', function () {
+      console.log('imagePath on MODUL.js');
+    });
+
   });
 
   // check if n is a number
@@ -109,5 +116,4 @@ function Minitel(options) {
 
 util.inherits(Minitel, EventEmitter);
 
-//exports = module.exports = new events.EventEmitter();
 module.exports = Minitel;
