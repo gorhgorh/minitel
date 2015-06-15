@@ -84,9 +84,9 @@ function Minitel(options) {
     });
   };
 
-  // when the minitel is there
+  // when the minitel serial com is open
   serialPort.on('open', function () {
-    minitel.isReady = true;
+    //minitel.isReady = true;
     self.emit('spOpen', 'spOpen', options);
     console.log('Minitel is available');
     minitel.clear();
@@ -103,7 +103,7 @@ function Minitel(options) {
     self.on('imagePath', function () {
       console.log('imagePath on MODUL.js');
     });
-
+    self.emit('imagePath', 'path/from/Module');
   });
 
   // check if n is a number
