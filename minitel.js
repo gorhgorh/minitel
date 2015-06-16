@@ -4,6 +4,11 @@ var assert      = require('assert');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
+// minitel codes
+var ESC = '\x1b';
+// Control sequence introducer
+var CSI = ESC+'[';
+
 function Minitel(options) {
   if (!(this instanceof Minitel)) return new Minitel();
   EventEmitter.call(this);
@@ -18,13 +23,13 @@ function Minitel(options) {
   }else {
     opts = options;
     if (!opts.txtFile){
-      opts.txtFile = 'ascii/test.txt';
+      opts.txtFile = 'ascii/j5.txt';
     }
     if(!opts.speed){
       opts.speed      = 1200;
     }
   }
-  //console.log('opts',opts);
+
 
   var serialPort = new SerialPort(opts.port, {
     baudrate: opts.speed,
@@ -37,7 +42,7 @@ function Minitel(options) {
   // write a line to the minitel
   minitel.wrLn = function (line) {
     var lnLnth  = line.length;
-    var curline ='';
+    var curLine ='';
 
     assert(typeof(line)==='string');
     assert(isNumber(lnLnth));
@@ -58,7 +63,7 @@ function Minitel(options) {
     assert(curLine.length===40);
 
     // write the line to the minitel
-    //console.log(curLine);
+
     serialPort.write(curLine);
   };
 
@@ -75,10 +80,8 @@ function Minitel(options) {
   minitel.readMsg = function (file) {
     minitel.clear();
     lineReader.eachLine(file, function(line, last) {
-      //console.log(line);
       minitel.wrLn(line);
       if (last === true) {
-        console.log('file read');
         return false; // stop reading
       }
     });
@@ -86,24 +89,22 @@ function Minitel(options) {
 
   // when the minitel serial com is open
   serialPort.on('open', function () {
-    //minitel.isReady = true;
-    self.emit('spOpen', 'spOpen', options);
-    console.log('Minitel is available');
+    console.log('Minitel is online');
     minitel.clear();
-    minitel.readMsg(opts.txtFile);
+    //minitel.readMsg(opts.txtFile);
+
     // logs input of the minitel keyboard
     serialPort.on('data', function(data) {
       console.log('data received: ' + data);
     });
 
-    self.on('spOpen', function myEventCb(str, num) {
-      console.log('serial port event from lib !!!');
+    // when the module recive a txt file to display
+    self.on('txtFile', function (path) {
+      minitel.readMsg(path);
     });
 
-    self.on('imagePath', function () {
-      console.log('imagePath on MODUL.js');
-    });
-    self.emit('imagePath', 'path/from/Module');
+    // display the default image
+    self.emit('ready', 'ready');
   });
 
   // check if n is a number
@@ -111,6 +112,7 @@ function Minitel(options) {
     return !isNaN(parseFloat(n)) && isFinite(n);
   }
 
+  // TODO understand why i can't pass the emmiter AND the proto functions
   //return minitel;
 }
 
