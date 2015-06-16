@@ -2,9 +2,13 @@
   "name": "minitel",
   "version": "1.0.0",
   "description": "hi tech mintel ",
-  "main": "mintel.js",
+  "main": "minitel.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gorhgorh/minitel.git"
   },
   "keywords": [
     "minitel",
@@ -12,6 +16,11 @@
   ],
   "author": "gorhgorh",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gorhgorh/minitel/issues"
+  },
+  "homepage": "https://github.com/gorhgorh/minitel#readme"
+  },
   "dependencies": {
     "line-reader": "^0.2.4",
     "serialport": "^1.7.4"
