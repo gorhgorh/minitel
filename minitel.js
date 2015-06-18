@@ -1,3 +1,7 @@
+/*
+ * minitel.js a dream come true in one color only (unless you have a minitel 2 !!!)
+ */
+
 var SerialPort  = require('serialport').SerialPort;
 var lineReader  = require('line-reader');
 var assert      = require('assert');
@@ -5,16 +9,17 @@ var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
 // minitel codes
+// TODO implement them ...
 var ESC = '\x1b';
 // Control sequence introducer
 var CSI = ESC+'[';
 
+// constructor func
 function Minitel(options) {
+
   if (!(this instanceof Minitel)) return new Minitel();
   EventEmitter.call(this);
   var opts    = {};
-  var minitel  = {};
-
   var self = this;
 
   // default options
@@ -23,14 +28,14 @@ function Minitel(options) {
   }else {
     opts = options;
     if (!opts.txtFile){
-      opts.txtFile = 'ascii/j5.txt';
+      opts.txtFile = './ascii/j5.txt';
     }
     if(!opts.speed){
       opts.speed      = 1200;
     }
   }
 
-
+  // serial com conf (DO NOT TOUCH THIS)
   var serialPort = new SerialPort(opts.port, {
     baudrate: opts.speed,
     databits:7,
@@ -38,15 +43,18 @@ function Minitel(options) {
   });
 
   /* minitel functions */
+  // write a line to the minitel
+  self.wrChars = function  (str) {
+    assert(typeof str==='string');
+    serialPort.write(str);
+  };
 
   // write a line to the minitel
-  minitel.wrLn = function (line) {
+  self.wrLn = function (line) {
     var lnLnth  = line.length;
     var curLine ='';
-
     assert(typeof(line)==='string');
     assert(isNumber(lnLnth));
-
     // if the line is less thant 40 char
     // we fill it with white space till 40;
     if(lnLnth < 41){
@@ -63,24 +71,23 @@ function Minitel(options) {
     assert(curLine.length===40);
 
     // write the line to the minitel
-
     serialPort.write(curLine);
   };
 
   // clear the minitel output
-  minitel.clear = function(){
+  self.clear = function(){
     serialPort.write('\x0c');
   };
 
-  minitel.beep = function () {
+  self.beep = function () {
     serialPort.write('\x07'); // da noiz
   };
 
-  // read a textfile and send its content line by line to the minitel
-  minitel.readMsg = function (file) {
-    minitel.clear();
+  // read a textfile clear the screen and send its content line by line to the minitel
+  self.wrFile = function (file) {
+    self.clear();
     lineReader.eachLine(file, function(line, last) {
-      minitel.wrLn(line);
+      self.wrLn(line);
       if (last === true) {
         return false; // stop reading
       }
@@ -90,17 +97,11 @@ function Minitel(options) {
   // when the minitel serial com is open
   serialPort.on('open', function () {
     console.log('Minitel is online');
-    minitel.clear();
-    //minitel.readMsg(opts.txtFile);
+    self.clear();
 
     // logs input of the minitel keyboard
     serialPort.on('data', function(data) {
-      console.log('data received: ' + data);
-    });
-
-    // when the module recive a txt file to display
-    self.on('txtFile', function (path) {
-      minitel.readMsg(path);
+      self.emit('keyPress', data);
     });
 
     // display the default image
