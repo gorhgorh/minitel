@@ -1,6 +1,6 @@
 {
   "name": "minitel",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "hi tech mintel ",
   "main": "minitel.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "lowtech"
   ],
   "author": "gorhgorh",
-  "license": "ISC",
+  "license": "BeerWare",
   "bugs": {
     "url": "https://github.com/gorhgorh/minitel/issues"
   },
