@@ -1,6 +1,8 @@
 # minitel
 low teck, node powered, it needed to be done 
 
+[![volkswagen status](https://auchenberg.github.io/volkswagen/volkswargen_ci.svg?v=1)](https://github.com/auchenberg/volkswagen)
+
 this module allow you to connect to a minitel, a terminal for an obsolete pre internet version of a country wide (France) intranet.
 
 this it allow you to get key pressed from the keyboard and write to the terminal from node, or display content of a textfile. 
